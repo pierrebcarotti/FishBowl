@@ -45,7 +45,7 @@ class SimulationGrid:
 
     def _spawn(self):
         """
-        function that create the grid and fish initially (and only at start)
+        function to create the grid by spawning fishes and sharks initially (and only at start)
         :return:
         """
         # get simulation elements
@@ -88,7 +88,7 @@ class SimulationGrid:
 
     def _eat(self) -> Dict[int, SquareGridCoordinate]:
         """
-        Sharks that are adjacent to a Fish square eat and move into square (and do not move after)
+        Sharks that are adjacent to a Fish square eat and move into fish square (and do not move after)
         :return: list[(oid, prev_coordinate)]
         """
         _debug = 'Turn: {:<3} - Eat - '.format(self._sim_turn)
@@ -240,7 +240,7 @@ class SimulationGrid:
 
     def _move_animal_type(self, animal_type: Animal, already_moved: List[int]):
         """
-
+        Perform move action for a type of animal
         :param animal_type:
         :param already_moved:
         :return:
