@@ -1,4 +1,4 @@
-from simulation.dataio.database import blank_password
+from fish_bowl.dataio.database import blank_password
 
 
 class TestDataBaseUtils:
