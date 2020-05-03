@@ -1,9 +1,9 @@
 import pandas as pd
 import pytest
 
-from simulation.dataio.persistence import SimulationClient, Simulation
-from simulation.process.utils import ImpossibleAction, Animal
-from simulation.process.topology import SquareGridCoordinate, NonEmptyCoordinate, TopologyError, square_grid_neighbours
+from fish_bowl.dataio.persistence import SimulationClient, Simulation
+from fish_bowl.process.utils import ImpossibleAction, Animal
+from fish_bowl.process.topology import SquareGridCoordinate, NonEmptyCoordinate, TopologyError, square_grid_neighbours
 
 sim_config = {
     'grid_size': 10,

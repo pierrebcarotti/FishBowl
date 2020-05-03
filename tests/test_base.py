@@ -1,7 +1,7 @@
-from simulation.dataio.persistence import SimulationClient
-from simulation.process.base import SimulationGrid
-from simulation.process.topology import SquareGridCoordinate
-from simulation.process.utils import Animal
+from fish_bowl.dataio.persistence import SimulationClient
+from fish_bowl.process.base import SimulationGrid
+from fish_bowl.process.topology import SquareGridCoordinate
+from fish_bowl.process.utils import Animal
 
 sim_config = {
     'grid_size': 10,

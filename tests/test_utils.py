@@ -1,5 +1,5 @@
 import pytest
-from simulation.process.utils import Animal, convert_str_enum_to_name
+from fish_bowl.process.utils import convert_str_enum_to_name
 
 
 class TestEnum:

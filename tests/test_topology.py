@@ -1,6 +1,6 @@
 import pytest
 
-from simulation.process.topology import SquareGridCoordinate, TopologyError, square_grid_valid, square_grid_neighbours
+from fish_bowl.process.topology import SquareGridCoordinate, TopologyError, square_grid_valid, square_grid_neighbours
 
 
 class TestTopology:
