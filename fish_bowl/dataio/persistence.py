@@ -1,7 +1,7 @@
 import datetime as dt
 import logging
 import os
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import pandas as pd
 
@@ -17,14 +17,17 @@ from fish_bowl.process.topology import SquareGridCoordinate, square_grid_valid, 
 
 _logger = logging.getLogger(__name__)
 
-DB_LOC = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..', 'simuldb.db'))
+DB_LOC = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..', 'simuldb_{}.db'))
 
 Base = declarative_base()
 schema = 'main'  # in sqlite, schema is always main, in other db, look for the owner schema name
 
 
-def get_database_string():
-    return r'sqlite:///{}'.format(DB_LOC)
+def get_database_string(ref: Optional[str] = '', memory: Optional[bool] = False):
+    if memory:
+        return 'sqlite://'
+    else:
+        return r'sqlite:///{}'.format(DB_LOC.format(ref))
 
 
 class Simulation(Base):
@@ -135,7 +138,8 @@ class SimulationClient(SQLAlchemyQueries):
             query = s.query(Simulation)
             return pd.read_sql(query.statement, query.session.bind)
 
-    def init_animal(self, sim_id: int, current_turn: int, animal_type: Animal, coordinate: SquareGridCoordinate):
+    def init_animal(self, sim_id: int, current_turn: int, animal_type: Animal, coordinate: SquareGridCoordinate,
+                    last_fed: Optional[int] = 0, last_breed: Optional[int] = 0):
         """
         use for single animal init
         :return:
@@ -154,7 +158,7 @@ class SimulationClient(SQLAlchemyQueries):
             if self.coordinate_is_occupied(sim_id=sim_id, coordinate=coordinate):
                 raise NonEmptyCoordinate('Coordinate {} is occupied'.format(coordinate))
             new_animal = Animals(sim_id=simulation.sid, animal_type=animal_type, spawn_turn=current_turn,
-                                 breed_count=0, last_breed=0, alive=True, last_fed=current_turn,
+                                 breed_count=0, last_breed=last_breed, alive=True, last_fed=last_fed,
                                  coord_x=coordinate.x, coord_y=coordinate.y)
             s.add(new_animal)
         return new_animal.oid

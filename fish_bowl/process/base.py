@@ -43,6 +43,20 @@ class SimulationGrid:
     def get_simulation_grid_data(self) -> pd.DataFrame:
         return self._persistence.get_animals_df(sim_id=self._sid)
 
+    @property
+    def population(self):
+        grid = self.get_simulation_grid_data()
+        population = grid[grid['alive']].animal_type.value_counts()
+        return population
+
+    def persist_to_file(self, filename):
+        population = self.population
+        nb = '{},{},{}'.format(self._sim_turn, population[Animal.Fish], population[Animal.Shark])
+        with open(filename, 'a') as fp:
+            if self._sim_turn == 1:
+                fp.write('Turn, Fish, Sharks\n')
+            fp.write(nb + '\n')
+
     def _spawn(self):
         """
         function to create the grid by spawning fishes and sharks initially (and only at start)
@@ -58,12 +72,17 @@ class SimulationGrid:
         sharks = 0
         for coord in coord_array:
             if fishes < simulation_params.init_nb_fish:
-                self._persistence.init_animal(sim_id=self._sid, current_turn=0, animal_type=Animal.Fish,
-                                              coordinate=SquareGridCoordinate(*coord))
+                # since animal at start can be able to breed, last breed can be negative
+                spawn_turn = -random.randint(0, simulation_params.fish_breed_maturity)
+                self._persistence.init_animal(sim_id=self._sid, current_turn=spawn_turn, animal_type=Animal.Fish,
+                                              coordinate=SquareGridCoordinate(*coord),
+                                              last_breed=spawn_turn)
                 fishes += 1
             elif sharks < simulation_params.init_nb_shark:
-                self._persistence.init_animal(sim_id=self._sid, current_turn=0, animal_type=Animal.Shark,
-                                              coordinate=SquareGridCoordinate(*coord))
+                spawn_turn = -random.randint(0, simulation_params.shark_breed_maturity)
+                self._persistence.init_animal(sim_id=self._sid, current_turn=spawn_turn, animal_type=Animal.Shark,
+                                              coordinate=SquareGridCoordinate(*coord),
+                                              last_breed=spawn_turn)
                 sharks += 1
             else:
                 break
@@ -142,7 +161,8 @@ class SimulationGrid:
         sharks = self._persistence.get_animals_by_type(sim_id=self._sid, animal_type=Animal.Shark).sample(frac=1)
         for idx, shark in sharks.iterrows():
             # can shark breed?
-            if (self._sim_turn - shark.spawn_turn) >= simulation_params.shark_breed_maturity:
+            if (((self._sim_turn - shark.spawn_turn) >= simulation_params.shark_breed_maturity) and
+                    ((self._sim_turn - shark.last_breed) >= simulation_params.shark_breed_maturity)):
                 # shark can breed
                 if random.randint(0, 100) <= simulation_params.shark_breed_probability:
                     # shark is possibly breeding...
@@ -182,13 +202,15 @@ class SimulationGrid:
                         to_update[shark.oid] = {'last_breed': self._sim_turn, 'breed_count': shark.breed_count + 1}
                         # spawn new fish in breed_coord
                         new_oid = self._persistence.init_animal(sim_id=self._sid, current_turn=self._sim_turn,
-                                                                animal_type=Animal.Shark, coordinate=breed_coord)
+                                                                animal_type=Animal.Shark, coordinate=breed_coord,
+                                                                last_fed=self._sim_turn)
                         _logger.debug('{}Spawning new shark {} {}'.format(_debug, new_oid, breed_coord))
         # Last Fishes, randomize
         fishes = self._persistence.get_animals_by_type(sim_id=self._sid, animal_type=Animal.Fish).sample(frac=1)
         for idx, fish in fishes.iterrows():
             # can fish breed?
-            if (self._sim_turn - fish.spawn_turn) >= simulation_params.fish_breed_maturity:
+            if (((self._sim_turn - fish.spawn_turn) >= simulation_params.fish_breed_maturity) and
+                    ((self._sim_turn - fish.last_breed) >= simulation_params.fish_breed_maturity)):
                 # fish can breed
                 if random.randint(0, 100) <= simulation_params.fish_breed_probability:
                     # fish is possibly breeding if free space is available
@@ -208,7 +230,8 @@ class SimulationGrid:
                             moved.append(fish.oid)
                             # spawn new fish in breed_coord
                             self._persistence.init_animal(sim_id=self._sid, current_turn=self._sim_turn,
-                                                          animal_type=Animal.Fish, coordinate=breed_coord)
+                                                          animal_type=Animal.Fish, coordinate=breed_coord,
+                                                          last_fed=self._sim_turn)
                             # break out of loop
                             break
         # now, update all animals
