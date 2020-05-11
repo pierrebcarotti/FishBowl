@@ -1,12 +1,12 @@
 {
-  "grid_size": 20,
-  "init_nb_fish": 150,
-  "fish_breed_maturity": 2,
-  "fish_breed_probability": 0.8,
+  "grid_size": 40,
+  "init_nb_fish": 300,
+  "fish_breed_maturity": 3,
+  "fish_breed_probability": 80,
   "fish_speed": 2,
-  "init_nb_shark": 5,
-  "shark_breed_maturity": 5,
-  "shark_breed_probability": 0.8,
+  "init_nb_shark": 10,
+  "shark_breed_maturity": 10,
+  "shark_breed_probability": 100,
   "shark_speed": 4,
-  "shark_starving": 4
+  "shark_starving": 3
 }
